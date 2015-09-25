@@ -1,4 +1,7 @@
-description Outernet data delivery agent
+description "Outernet data delivery agent"
+
+start on runlevel [2345]
+stop on runlevel [!2345]
 
 expect fork
 
