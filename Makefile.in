@@ -70,7 +70,7 @@ ${LIBRARIAN_CONF}: ${LIBRARIAN_CONF_SRC} ${LIBRARIAN_MAIN_CONF} ${CONTENT_DIR} $
 
 ${LIBRARIAN_MAIN_CONF}:
 	${PKG_COMMAND} ${PKG_LIST}
-	pip2 install ${LIBRARIAN_SRC}
+	yes | pip2 install ${LIBRARIAN_SRC}
 
 ${LIBRARIAN_INIT}: ${LIBRARIAN_INIT_SRC}
 	install -m644 $< $@
@@ -88,10 +88,11 @@ ${DATA_DIR}:
 scrub: uninstall
 	-rm -rf ${OUTPUT_DIR}
 	-rm -rf ${DATA_DIR}
+	-rm ${CONF_PREFIX}/ondd.conf
 
 uninstall:
 	-rm -rf ${OUTERNET_PREFIX}
 	-rm -f ${ONDD_BINARY}
-	-pip2 uninstall librarian
+	-yes | pip2 uninstall librarian
 	-rm -f ${ONDD_INIT}
 	-rm -f ${LIBRARIAN_INIT}
