@@ -1,0 +1,8 @@
+[Unit]
+Description=Outernet library manager
+
+[Service]
+ExecStart=/usr/bin/python2.7 -m librarian.app --conf %CONFDIR%/librarian.ini
+
+[Install]
+WantedBy=multi-user.target

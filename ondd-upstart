@@ -1,0 +1,5 @@
+description Outernet data delivery agent
+
+expect fork
+
+exec /usr/sbin/ondd -d --pid-file /var/run/ondd.pid -o %OUTPUT%

@@ -1,0 +1,10 @@
+[Unit]
+Description=Outernet delivery agent
+
+[Service]
+Type=forking
+PIDFile=/var/run/ondd.pid
+ExecStart=/usr/sbin/ondd -d --pid-file /var/run/ondd.pid -o %OUTPUT%
+
+[Install]
+WantedBy=multi-user.target

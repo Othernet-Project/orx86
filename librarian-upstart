@@ -1,0 +1,3 @@
+description Outernet library manager
+
+exec /usr/bin/python2.7 -m librarian.app --conf %CONFDIR%/librarian.ini

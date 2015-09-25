@@ -1,0 +1,97 @@
+VERSION = 0.1
+
+# Sources
+LIBRARIAN_RELEASE = 0.4.post5
+LIBRARIAN_SITE = https://github.com/Outernet-Project/librarian/archive
+LIBRARIAN_SRC = ${LIBRARIAN_SITE}/${LIBRARIAN_RELEASE}.tar.gz
+ONDD_BINARY_SRC = ondd-${PLATFORM}
+ONDD_INIT_SRC = ondd-${INIT}
+LIBRARIAN_INIT_SRC = librarian-${INIT}
+LIBRARIAN_CONF_SRC = librarian.ini
+CERT_SRC = ca.crt
+
+# Target directories
+PREFIX = /usr
+BIN_PREFIX = ${PREFIX}/sbin
+SHR_PREFIX = ${PREFIX}/share
+OUTERNET_SHR_PREFIX = ${SHR_PREFIX}/outernet
+CONF_PREFIX = /etc
+OUTERNET_PREFIX = ${CONF_PREFIX}/outernet
+OUTPUT_DIR = /var/spool/downloads
+DATA_DIR = /var/lib/outernet
+CONTENT_DIR = ${DATA_DIR}/content
+DB_DIR = ${DATA_DIR}/db
+
+# Target files
+ONDD_BINARY = ${BIN_PREFIX}/ondd
+ONDD_INIT = ${INIT_PREFIX}/ondd${INIT_EXT}
+LIBRARIAN_INIT = ${INIT_PREFIX}/librarian${INIT_EXT}
+LIBRARIAN_CONF = ${OUTERNET_PREFIX}/librarian.ini
+LIBRARIAN_MAIN_CONF = ${SITE_PACKAGES}/librarian/librarian.ini
+CERT = ${OUTERNET_PREFIX}/ca.crt
+VERSION_FILE = ${OUTERNET_PREFIX}/version
+
+.PHONY: all ondd librarian version scrub uninstall
+
+all: ondd librarian
+
+ondd: ${ONDD_BINARY} ${ONDD_INIT} ${CERT} ${VERSION_FILE}
+
+librarian: ${LIBRARIAN_CONF} ${LIBRARIAN_INIT} ${VERSION_FILE}
+
+version: ${VERSION_FILE}
+
+${VERSION_FILE}: ${OUTERNET_PREFIX}
+	echo "${VERSION}" > ${VERSION_FILE}
+
+${ONDD_BINARY}: ${ONDD_BINARY_SRC}
+	install -m744 $< $@
+
+${ONDD_INIT}: ${ONDD_INIT_SRC}
+	install -m644 $< $@
+	sed -i 's/%OUTPUT%/${OUTPUT}/' $@
+
+${CERT}: ${CERT_SRC} ${OUTERNET_PREFIX}
+	install -m644 $< $@
+
+${OUTERNET_PREFIX}:
+	mkdir -p $@
+
+${LIBRARIAN_CONF}: ${LIBRARIAN_CONF_SRC} ${LIBRARIAN_MAIN_CONF} ${CONTENT_DIR} ${DB_DIR}
+	install -m644 $< $@
+	sed -i 's/%OUTPUT%/${OUTPUT}/' $@
+	sed -i 's/%DEFAULT%/${LIBRARIAN_MAIN_CONF}/' $@
+	sed -i 's/%CONFIDR%/${OUTERNET_PREFIX}/' $@
+	sed -i 's/%SYSLOG%/${SYSLOG}/' $@
+	sed -i 's/%CONTENTDIR%/${CONTENT_DIR}/' $@
+	sed -i 's/%DBDIR%/${DB_DIR}/' $@
+	sed -i 's/%ARCH%/${PLATFORM}/' $@
+	sed -i 's/%VERFILE%/${VERSION_FILE}/' $@
+
+${LIBRARIAN_MAIN_CONF}:
+	${PKG_COMMAND} ${PKG_LIST}
+	pip2 install ${LIBRARIAN_SRC}
+
+${LIBRARIAN_INIT}: ${LIBRARIAN_INIT_SRC}
+	install -m644 $< $@
+	sed -i 's/%CONFDIR%/${OUTERNET_PREFIX}/' $@
+
+${CONTENT_DIR}: ${DATA_DIR}
+	mkdir -p $@
+
+${DB_DIR}: ${DATA_DIR}
+	mkdir -p $@
+
+${DATA_DIR}:
+	mkdir -p $@
+
+scrub: uninstall
+	rm -rf ${OUTPUT_DIR}
+	rm -rf ${DATA_DIR}
+
+uninstall:
+	rm -rf ${OUTERNET_PREFIX}
+	rm -f ${ONDD_BINARY}
+	pip2 uninstall librarian
+	rm -f ${ONDD_INIT}
+	rm -f ${LIBRARIAN_INIT}
