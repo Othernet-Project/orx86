@@ -28,7 +28,7 @@ echo "Using ${OUTPUT_DIR} for downloads"
 if [ -d /etc/systemd ]
 then
     writeconf "INIT = systemd"
-    writeconf "INIT_PREFIX = /etc/sytemd/system"
+    writeconf "INIT_PREFIX = /etc/systemd/system"
     writeconf "INIT_EXT = .service"
     echo "Using systemd"
 elif [ -d /etc/init ]
@@ -47,13 +47,13 @@ fi
 # Check packaging system
 if [ -n "$(which apt-get 2>/dev/null)" ]
 then
-    writeconf "PKG_COMMAND = apt-get install"
-    writeconf "PKG_LIST = python2.7-pip libev-dev sqlite3"
+    writeconf "PKG_COMMAND = DEBIAN_FRONTEND=noninteractive apt-get install -q -y"
+    writeconf "PKG_LIST = python-pip libev-dev sqlite3 build-essential python-dev"
     echo "Using apt-get"
 elif [ -n "$(which pacman 2>/dev/null)" ]
 then
-    writeconf "PKG_COMMAND = pacman -S"
-    writeconf "PKG_LIST = python2-pip libev sqlite3"
+    writeconf "PKG_COMMAND = pacman -S --noconfirm"
+    writeconf "PKG_LIST = python2-pip libev sqlite3 base-devel"
     echo "Using pacman"
 else
     writeconf "PKG_COMMAND ="
