@@ -25,18 +25,18 @@ writeconf "OUTPUT_DIR = ${OUTPUT_DIR}"
 echo "Using ${OUTPUT_DIR} for downloads"
 
 # Check init style
-if [ -d /etc/systemd ]
-then
-    writeconf "INIT = systemd"
-    writeconf "INIT_PREFIX = /etc/systemd/system"
-    writeconf "INIT_EXT = .service"
-    echo "Using systemd"
-elif [ -d /etc/init ]
+if [ -d /etc/init ] && [ -n $(which service 2>/dev/null) ]
 then
     writeconf "INIT = upstart"
     writeconf "INIT_PREFIX = /etc/init"
     writeconf "INIT_EXT = .conf"
     echo "Using upstart"
+elif [ -d /etc/systemd ] && [ -n $(which systemctl 2>/dev/null) ]
+then
+    writeconf "INIT = systemd"
+    writeconf "INIT_PREFIX = /etc/systemd/system"
+    writeconf "INIT_EXT = .service"
+    echo "Using systemd"
 else
     writeconf "INIT = init"
     writeconf "INIT_PREFIX = /etc/init.d"
